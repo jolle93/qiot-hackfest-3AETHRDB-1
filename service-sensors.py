@@ -173,7 +173,6 @@ def gas():
     try:
         readings = read_all()
         gas = GasRaw(readings)
-        gas['stationId'] = get_serial_number()
         return gas
     except Exception as e:
         print(e)
@@ -186,8 +185,14 @@ def pollution():
         pms5003 = PMS5003()
         data = pms5003.read().data
         pollution = PollutionRaw(data)
-        pollution['stationId'] = get_serial_number()
         return pollution
     except Exception as e:
         print(e)
+        
+@app.route('/serial')
+@as_json
+def serial():
+    LOGGER.info("Rest getSerial")
+    data = {stationID: get_serial_number()}
+    return data
 
