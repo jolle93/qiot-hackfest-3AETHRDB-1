@@ -4,6 +4,7 @@ import time
 import atexit
 import ads1015
 import RPi.GPIO as GPIO
+import logging
 from pms5003 import PMS5003, ReadTimeoutError
 from flask_json import FlaskJSON, JsonError, json_response, as_json
 
@@ -15,6 +16,8 @@ _is_setup = False
 _adc_enabled = False
 _adc_gain = 6.148
 
+
+LOGGER = logging.getLogger()
 
 class Mics6814Reading(object):
     __slots__ = 'oxidising', 'reducing', 'nh3', 'adc'
@@ -43,10 +46,12 @@ ADC: {adc:05.02f} Volts
     
 class GasRaw(dict):
     def __init__(self, data):
+        LOGGER.info("GasRaw.__init__()")
         dict.__init__(self, adc = data.adc, nh3 = data.nh3, oxidising = data.oxidising, reducing = data.reducing)
 
 class PollutionRaw(dict):
     def __init__(self, data):
+        LOGGER.info("PollutionRaw.__init__()")
         dict.__init__(self, pm1_0 = data[0], pm2_5 = data[1], pm10 = data[2], pm1_0_atm = data[3], pm2_5_atm = data[4], pm10_atm = data[5], gt0_3 = data[6], gt0_5 = data[7], gt1_0 = data[8], gt2_5 = data[9], gt5_0 = data[10], gt10um = data[11])
     def __json__(self):
         return 'Object{pm1_0:"' + str(self.pm1_0) +'"'
@@ -164,6 +169,7 @@ def hello_world():
 @app.route('/gas')
 @as_json
 def gas():
+    LOGGER.info("Rest getGas()")
     try:
         readings = read_all()
         gas = GasRaw(readings)
@@ -175,6 +181,7 @@ def gas():
 @app.route('/pollution')
 @as_json
 def pollution():
+    LOGGER.info("Rest getPollution")
     try:
         pms5003 = PMS5003()
         data = pms5003.read().data
