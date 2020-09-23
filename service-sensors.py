@@ -193,6 +193,6 @@ def pollution():
 @as_json
 def serial():
     LOGGER.info("Rest getSerial")
-    data = {stationID: get_serial_number()}
+    data = {"stationID": get_serial_number()}
     return data
 
